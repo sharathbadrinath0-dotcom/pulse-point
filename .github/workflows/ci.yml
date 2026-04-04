@@ -1,28 +1,55 @@
-name: CI
+name: CI/CD - Build & Deploy to AWS EC2
 
 on:
-    push:
-        branches:
-            - main
-    pull_request:
-        branches:
-            - main
+  push:
+    branches: [ main ]
 
 jobs:
-    build:
-        runs-on: ubuntu-latest
+  build-and-deploy:
+    runs-on: ubuntu-latest
 
-        steps:
-        - name: Checkout code
-            uses: actions/checkout@v2
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-        - name: Set up Node.js
-            uses: actions/setup-node@v2
-            with:
-                node-version: '14'
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
 
-        - name: Install dependencies
-            run: npm install
+      # Backend
+      - name: Install Backend Dependencies
+        run: |
+          cd backend
+          npm ci
 
-        - name: Run tests
-            run: npm test
+      # Frontend
+      - name: Install Frontend Dependencies
+        run: |
+          cd frontend
+          npm ci
+
+      - name: Build Frontend
+        run: |
+          cd frontend
+          npm run build
+
+      # Deploy to AWS
+      - name: Deploy to AWS EC2
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            cd ~/PulseFit-Final
+            git pull origin main
+            cd backend
+            npm ci --production
+            pm2 restart backend || pm2 start server.js --name backend
+            cd ../frontend
+            npm ci --production
+            npm run build
+            pm2 restart frontend || pm2 serve build 3000 --name frontend --spa
+            pm2 save
+            echo "Deployment completed successfully!"
