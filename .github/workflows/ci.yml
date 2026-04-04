@@ -1,55 +1,68 @@
-name: CI/CD - Build & Deploy to AWS EC2
+name: Backend CI
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
 
 jobs:
-  build-and-deploy:
-    runs-on: ubuntu-latest
-
+  test:
+    name: Run Tests
+    runs-on: self-hosted
+    strategy:
+      matrix:
+        node-version: [22]
+    environment: MONGO_URI
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - name: Checkout Code
+        uses: actions/checkout@v3
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v3
         with:
-          node-version: '20'
+          node-version: ${{ matrix.node-version }}
 
-      # Backend
+      - name: Print Env Secret
+        env:
+          MONGO_URI: ${{ secrets.MONGO_URI }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          PORT: ${{ secrets.PORT }}
+        run: |
+          echo "Secret 1 is: $MONGO_URI"
+          echo "Secret 2 is: $JWT_SECRET"
+          echo "Secret 3 is: $PORT"
+
+      - run: pm2 stop all
+
       - name: Install Backend Dependencies
+        working-directory: ./backend
         run: |
-          cd backend
-          npm ci
+          npm install --global yarn
+          yarn --version
+          yarn install
 
-      # Frontend
       - name: Install Frontend Dependencies
+        working-directory: ./frontend
         run: |
-          cd frontend
-          npm ci
+          df -h
+          sudo rm -rf ./build
+          yarn install
+          yarn run build
 
-      - name: Build Frontend
-        run: |
-          cd frontend
-          npm run build
+      - name: Run Backend Tests
+        env:
+          MONGO_URI: ${{ secrets.MONGO_URI }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          PORT: ${{ secrets.PORT }}
+        working-directory: ./backend
+        run: npm test
 
-      # Deploy to AWS
-      - name: Deploy to AWS EC2
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          script: |
-            cd ~/PulseFit-Final
-            git pull origin main
-            cd backend
-            npm ci --production
-            pm2 restart backend || pm2 start server.js --name backend
-            cd ../frontend
-            npm ci --production
-            npm run build
-            pm2 restart frontend || pm2 serve build 3000 --name frontend --spa
-            pm2 save
-            echo "Deployment completed successfully!"
+      - run: npm ci
+
+      - run: |
+          cd ./backend
+          touch .env
+          echo "${{ secrets.PROD }}" > .env
+
+      - run: pm2 start all
+      - run: pm2 restart all
