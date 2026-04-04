@@ -1,21 +1,29 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Navbar from './components/Navbar';
-import Login from './pages/Login';
-import Register from './pages/Register';
-import Profile from './pages/Profile';
-import Tasks from './pages/Tasks';
+import React, { useState } from 'react';
+import Home from './components/Home';
+import Bookings from './components/Bookings';
+import Login from './components/Login';
 
 function App() {
+  const [page, setPage] = useState('home');
+  const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem('token'));
+
+  const handleLoginSuccess = () => {
+    setIsLoggedIn(true);
+    setPage('bookings');
+  };
+
+  const logout = () => {
+    localStorage.removeItem('token');
+    setIsLoggedIn(false);
+    setPage('home');
+  };
+
   return (
-    <Router>
-      <Navbar />
-      <Routes>
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/profile" element={<Profile />} />
-        <Route path="/tasks" element={<Tasks />} />
-      </Routes>
-    </Router>
+    <>
+      {page === 'home' && <Home onGoToBookings={() => setPage('bookings')} isLoggedIn={isLoggedIn} onLogout={logout} />}
+      {page === 'bookings' && isLoggedIn && <Bookings onGoToHome={() => setPage('home')} onLogout={logout} />}
+      {(page === 'login' || (!isLoggedIn && page === 'bookings')) && <Login onLoginSuccess={handleLoginSuccess} onGoToHome={() => setPage('home')} />}
+    </>
   );
 }
 
