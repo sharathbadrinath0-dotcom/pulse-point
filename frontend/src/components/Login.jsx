@@ -7,7 +7,7 @@ function Login({ onLoginSuccess, onGoToHome }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const url = isRegister ? 'http://localhost:5001/api/auth/register' : 'http://localhost:5001/api/auth/login';
+    const url = isRegister ? 'http://13.211.135.140:5001/api/auth/register' : 'http://13.211.135.140:5001/api/auth/login';
 
     try {
       const res = await fetch(url, {
