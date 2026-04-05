@@ -21,46 +21,13 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
 
-      - name: Print Environment Secrets (for debugging)
-        env:
-          MONGO_URI: ${{ secrets.MONGO_URI }}
-          JWT_SECRET: ${{ secrets.JWT_SECRET }}
-          PORT: ${{ secrets.PORT }}
-        run: |
-          echo "MONGO_URI is set"
-          echo "JWT_SECRET is set"
-          echo "PORT is set"
-
-      - name: Stop any running PM2 processes
+      - name: Stop any existing PM2 processes
         run: pm2 stop all || true
 
-      # ================== BACKEND TESTS ==================
       - name: Install Backend Dependencies
         working-directory: ./backend
-        run: |
-          yarn install
+        run: yarn install
 
-      - name: ✅ Backend Smoke Tests (Real API Tests)
-        working-directory: ./backend
-        env:
-          MONGO_URI: ${{ secrets.MONGO_URI }}
-          JWT_SECRET: ${{ secrets.JWT_SECRET }}
-          PORT: 5001
-        run: |
-          echo "🔥 Starting backend smoke tests..."
-
-          # Test 1: Server is running and returns 200
-          curl -f http://localhost:5001/api/classes || echo "❌ Classes endpoint failed"
-
-          # Test 2: Register a test user
-          curl -f -X POST http://localhost:5001/api/auth/register \
-            -H "Content-Type: application/json" \
-            -d '{"name":"Test CI User","email":"ci-test-$(date +%s)@example.com","password":"password123"}' || echo "❌ Register failed"
-
-          # Test 3: Login with the test user (we'll use a fixed test user for simplicity)
-          echo "✅ All backend tests passed!"
-
-      # ================== FRONTEND BUILD ==================
       - name: Install Frontend Dependencies & Build
         working-directory: ./frontend
         run: |
@@ -72,6 +39,19 @@ jobs:
         run: |
           pm2 restart all || true
           pm2 save
+          sleep 8   # give backend time to start
 
-      - name: Final Status Check
-        run: pm2 status
+      - name: ✅ Backend Smoke Tests (Real API Tests)
+        run: |
+          echo "🔥 Starting backend smoke tests..."
+
+          # Test 1: Classes endpoint
+          curl -f http://localhost:5001/api/classes || { echo "❌ Classes endpoint failed"; exit 1; }
+
+          # Test 2: Register endpoint
+          curl -f -X POST http://localhost:5001/api/auth/register \
+            -H "Content-Type: application/json" \
+            -d '{"name":"CI Test User","email":"ci-test-$(date +%s)@example.com","password":"password123"}' \
+            || { echo "❌ Register failed"; exit 1; }
+
+          echo "✅ All backend tests passed!"
