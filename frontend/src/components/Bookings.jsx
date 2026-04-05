@@ -18,11 +18,11 @@ function Bookings({ onGoToHome }) {
 
   // Fetch classes and bookings
   useEffect(() => {
-    fetch('http://13.211.135.140:5001/api/classes')
+    fetch('http://3.25.199.227/api/classes')
       .then(res => res.json())
       .then(setClasses);
 
-    fetch('http://13.211.135.140:5001/api/bookings')
+    fetch('http://3.25.199.227/api/bookings')
       .then(res => res.json())
       .then(setBookings);
   }, []);
@@ -43,7 +43,9 @@ function Bookings({ onGoToHome }) {
       status: formData.status
     };
 
-    const url = editingId ? `http://13.211.135.140:5001/api/bookings/${editingId}` : 'http://13.211.135.140:5001/api/bookings';
+    const url = editingId 
+      ? `http://3.25.199.227/api/bookings/${editingId}` 
+      : 'http://3.25.199.227/api/bookings';
     const method = editingId ? 'PUT' : 'POST';
 
     try {
@@ -55,7 +57,7 @@ function Bookings({ onGoToHome }) {
 
       if (res.ok) {
         setMessage(editingId ? '✅ Booking updated!' : '✅ Booking added successfully!');
-        fetch('http://13.211.135.140:5001/api/bookings')
+        fetch('http://3.25.199.227/api/bookings')
           .then(res => res.json())
           .then(setBookings);
         resetForm();
@@ -65,7 +67,6 @@ function Bookings({ onGoToHome }) {
     }
   };
 
-  // FIXED: Now properly fills First name, Last name, Email when editing
   const editBooking = (b) => {
     setFormData({
       fname: b.fname || '',
@@ -80,9 +81,9 @@ function Bookings({ onGoToHome }) {
 
   const deleteBooking = async (id) => {
     if (!window.confirm('Delete this booking?')) return;
-    await fetch(`http://13.211.135.140:5001/api/bookings/${id}`, { method: 'DELETE' });
+    await fetch(`http://3.25.199.227/api/bookings/${id}`, { method: 'DELETE' });
     setMessage('✅ Booking deleted');
-    fetch('http://13.211.135.140:5001/api/bookings').then(res => res.json()).then(setBookings);
+    fetch('http://3.25.199.227/api/bookings').then(res => res.json()).then(setBookings);
   };
 
   const resetForm = () => {
