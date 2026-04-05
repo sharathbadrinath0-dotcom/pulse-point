@@ -1,24 +1,48 @@
+# PulseFit – Fitness Class Booking System
 
-**Assessment 1.2 (Total Marks **20**)**
+**Full-Stack CRUD Application with DevOps Practices**  
+**IFN636 Assessment 1.2** – Software Life Cycle Management
 
-Assignment: **Software requirements analysis and design (**Full-Stack CRUD Application Development with DevOps Practices**)**
+
+![GitHub Actions](https://github.com/sharathbadrinath0-dotcom/pulse-point/actions/workflows/ci.yml/badge.svg)
+
+## 📋 Project Description
+
+PulseFit is a modern fitness class booking platform that allows members to browse available classes, book sessions, manage bookings, and handle user authentication. The application follows industry-standard full-stack development and DevOps practices including version control, CI/CD pipeline, and cloud deployment.
+
+**Live Application:** [http://3.25.199.227](http://3.25.199.227)
+
+**GitHub Repository:** [sharathbadrinath0-dotcom/pulse-point](https://github.com/sharathbadrinath0-dotcom/pulse-point)
+
+## ✨ Features
+
+- **User Authentication** – Register and Login (JWT-based)
+- **Class Management** – Browse all fitness classes with details
+- **Booking System** – Create, view, edit, and delete bookings
+- **Responsive UI** – Clean, modern design matching the PulseFit brand
+- **Real-time CRUD operations** on MongoDB
+- **CI/CD Pipeline** – Automated testing and deployment using GitHub Actions
+- **Cloud Deployment** – Hosted on AWS EC2 with Nginx + PM2
+
+## 🛠 Tech Stack
+
+| Layer       | Technology                          |
+|-------------|-------------------------------------|
+| Frontend    | React.js                            |
+| Backend     | Node.js + Express                   |
+| Database    | MongoDB Atlas                       |
+| Authentication | JWT + bcrypt                     |
+| CI/CD       | GitHub Actions (self-hosted runner) |
+| Deployment  | AWS EC2 + Nginx + PM2               |
+| Version Control | Git + GitHub (feature branching) |
 
 
----
 
-**Objective**
 
-For this assessment, you have already been assigned a project. Your task is to develop a system that implements CRUD (Create, Read, Update, Delete) operations based on the selected project. The system should include both a user panel and an admin panel. Depending on the nature of your chosen project, you may decide how many CRUD operations are required to support the functionality of the system. You have been provided with a starter project that includes user authentication using Node.js, React.js, and MongoDB, your should extend this application based on your assigned project requirements. Ensure that the implemented features are appropriate and meaningful for your selected project. Your project should include the following:
-In this assignment you will complete the following tasks:
 
-* **Basic Version Control using GitHub**
-* **Development, CI/CD Integration for Automated Deployment**
-* **Project report**
+## 🚀 Local Setup
 
- 
----
-
-**GitHub link of the starter project: **[https://github.com/nahaQUT/sampleapp_IFQ636.git](https://github.com/nahaQUT/sampleapp_IFQ636.git)
-
----
-
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/sharathbadrinath0-dotcom/pulse-point.git
+   cd pulse-point
