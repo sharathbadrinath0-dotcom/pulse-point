@@ -8,8 +8,8 @@ function Login({ onLoginSuccess, onGoToHome }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const url = isRegister 
-      ? 'http://3.25.199.227/api/auth/register' 
-      : 'http://3.25.199.227/api/auth/login';
+      ? 'http://3.107.84.104/api/auth/register' 
+      : 'http://3.107.84.104/api/auth/login';
 
     try {
       const res = await fetch(url, {
