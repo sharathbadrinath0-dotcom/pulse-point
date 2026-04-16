@@ -8,9 +8,6 @@ jobs:
   test:
     name: Run Tests
     runs-on: self-hosted
-    strategy:
-      matrix:
-        node-version: [22]
 
     steps:
       - name: Checkout Code
@@ -19,9 +16,9 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: 22
 
-      - name: Stop any existing PM2 processes
+      - name: Stop old PM2 processes
         run: pm2 stop all || true
 
       - name: Install Backend Dependencies
@@ -35,7 +32,7 @@ jobs:
           rm -rf build
           yarn run build
 
-      - name: Start PM2 Services (Backend + Frontend)
+      - name: Start PM2 Services
         run: |
           cd backend
           pm2 start server.js --name "backend" --update-env
@@ -44,27 +41,25 @@ jobs:
           pm2 serve build 3000 --name "frontend" --spa --update-env
           cd ..
           pm2 save
-          echo "⏳ Waiting for backend to fully start..."
-          sleep 12
+          echo "⏳ Waiting for backend to fully start (up to 30 seconds)..."
 
       - name: ✅ Backend Smoke Tests (Real API Tests)
         run: |
           echo "🔥 Starting backend smoke tests..."
 
-          # Wait up to 15 seconds for server to be ready
-          for i in {1..15}; do
+          # Strong health check - wait until the server actually responds
+          for i in {1..30}; do
             if curl -f -s http://localhost:5001/api/classes > /dev/null; then
               echo "✅ Backend is ready!"
               break
             fi
-            echo "⏳ Waiting... ($i/15)"
+            echo "⏳ Waiting... ($i/30)"
             sleep 1
           done
 
-          # Test 1: Classes endpoint
+          # Real tests
           curl -f http://localhost:5001/api/classes || { echo "❌ Classes endpoint failed"; exit 1; }
 
-          # Test 2: Register endpoint
           curl -f -X POST http://localhost:5001/api/auth/register \
             -H "Content-Type: application/json" \
             -d '{"name":"CI Test User","email":"ci-test-$(date +%s)@example.com","password":"password123"}' \
