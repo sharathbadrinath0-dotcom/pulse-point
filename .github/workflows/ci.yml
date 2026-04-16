@@ -35,16 +35,21 @@ jobs:
           rm -rf build
           yarn run build
 
-      - name: Restart PM2 Services
+      - name: Start PM2 Services (Backend + Frontend)
         run: |
-          pm2 restart all || true
+          cd backend
+          pm2 start server.js --name "backend" --update-env
+          cd ..
+          cd frontend
+          pm2 serve build 3000 --name "frontend" --spa --update-env
+          cd ..
           pm2 save
-          echo "⏳ Waiting for backend to start..."
-          sleep 10
+          echo "⏳ Waiting for backend to fully start..."
+          sleep 12
 
       - name: ✅ Backend Smoke Tests (Real API Tests)
         run: |
-          echo "🔥  Starting backend smoke tests..."
+          echo "🔥 Starting backend smoke tests..."
 
           # Wait up to 15 seconds for server to be ready
           for i in {1..15}; do
@@ -52,7 +57,7 @@ jobs:
               echo "✅ Backend is ready!"
               break
             fi
-            echo "⏳ Waiting for backend... ($i/15)"
+            echo "⏳ Waiting... ($i/15)"
             sleep 1
           done
 
