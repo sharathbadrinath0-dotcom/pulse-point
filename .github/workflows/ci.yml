@@ -44,7 +44,7 @@ jobs:
 
       - name: ✅ Backend Smoke Tests (Real API Tests)
         run: |
-          echo "🔥 Starting backend smoke tests..."
+          echo "🔥  Starting backend smoke tests..."
 
           # Wait up to 15 seconds for server to be ready
           for i in {1..15}; do
