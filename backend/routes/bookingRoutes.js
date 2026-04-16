@@ -3,7 +3,7 @@ const router = express.Router();
 const  Booking  = require('../models/Booking');
 const  Class  = require('../models/class');
 
-// Get all bookings for logged-in user (we'll add auth later)
+// Get all bookings for logged-in user 
 router.get('/', async (req, res) => {
   try {
     const bookings = await Booking.find().populate('class', 'name date startTime');
